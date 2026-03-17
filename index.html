@@ -9,6 +9,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Habit Tracker</title>
+    <!-- GitHub Pages SPA redirect: restore original URL from 404.html redirect -->
+    <script>
+      (function(){
+        var q = window.location.search;
+        if (q.length > 2 && q.indexOf('p=') !== -1) {
+          var params = new URLSearchParams(q);
+          var p = params.get('p');
+          var query = params.get('q');
+          var hash = window.location.hash;
+          var path = (p || '').replace(/~and~/g, '&');
+          var search = query ? '?' + query.replace(/~and~/g, '&') : '';
+          window.history.replaceState(null, '', path + search + hash);
+        }
+      })();
+    </script>
   </head>
   <body class="bg-slate-900 text-slate-100">
     <div id="root"></div>

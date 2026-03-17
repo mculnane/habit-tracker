@@ -22,7 +22,12 @@ export function useAuth() {
   }, [])
 
   const signIn = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname,
+      },
+    })
     return { error }
   }, [])
 
