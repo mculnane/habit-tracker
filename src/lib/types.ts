@@ -11,6 +11,7 @@ export type FrequencyType =
 
 export interface Task {
   id: string
+  user_id: string
   name: string
   context: Context
   frequency_type: FrequencyType
@@ -22,6 +23,7 @@ export interface Task {
 
 export interface Completion {
   id: string
+  user_id: string
   task_id: string
   completed_at: string
   period_key: string

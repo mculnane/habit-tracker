@@ -27,7 +27,7 @@ export function useTasks() {
   }, [fetchTasks])
 
   const addTask = useCallback(
-    async (task: Omit<Task, 'id' | 'created_at'>) => {
+    async (task: Omit<Task, 'id' | 'user_id' | 'created_at'>) => {
       const { data, error } = await supabase
         .from('tasks')
         .insert(task)

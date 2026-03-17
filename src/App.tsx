@@ -3,10 +3,13 @@ import { BottomNav } from './components/BottomNav'
 import { DoNow } from './screens/DoNow'
 import { Stats } from './screens/Stats'
 import { Manage } from './screens/Manage'
+import { Login } from './screens/Login'
 import { useTasks } from './hooks/useTasks'
 import { useCompletions } from './hooks/useCompletions'
+import { useAuth } from './hooks/useAuth'
 
 export default function App() {
+  const { session, loading: authLoading, signIn, signOut } = useAuth()
   const { tasks, loading: tasksLoading, addTask, updateTask, swapTaskOrder, deleteTask } = useTasks()
   const {
     completions,
@@ -15,6 +18,18 @@ export default function App() {
     undoItem,
     undoComplete,
   } = useCompletions(tasks)
+
+  if (authLoading) {
+    return (
+      <div className="flex h-dvh items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500" />
+      </div>
+    )
+  }
+
+  if (!session) {
+    return <Login onSignIn={signIn} />
+  }
 
   const loading = tasksLoading || completionsLoading
 
@@ -28,6 +43,14 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg">
+      <div className="flex items-center justify-end px-4 pt-3">
+        <button
+          onClick={signOut}
+          className="text-xs text-slate-500 hover:text-slate-300"
+        >
+          Sign out
+        </button>
+      </div>
       <Routes>
         <Route
           path="/"
