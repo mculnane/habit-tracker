@@ -8,8 +8,7 @@ import { useTasks } from './hooks/useTasks'
 import { useCompletions } from './hooks/useCompletions'
 import { useAuth } from './hooks/useAuth'
 
-export default function App() {
-  const { session, loading: authLoading, signIn, signOut, verifyOtp } = useAuth()
+function AuthenticatedApp({ signOut }: { signOut: () => void }) {
   const { tasks, loading: tasksLoading, addTask, updateTask, deleteTask } = useTasks()
   const {
     completions,
@@ -18,18 +17,6 @@ export default function App() {
     undoItem,
     undoComplete,
   } = useCompletions(tasks)
-
-  if (authLoading) {
-    return (
-      <div className="flex h-dvh items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500" />
-      </div>
-    )
-  }
-
-  if (!session) {
-    return <Login onSignIn={signIn} onVerifyOtp={verifyOtp} />
-  }
 
   const loading = tasksLoading || completionsLoading
 
@@ -83,4 +70,22 @@ export default function App() {
       <BottomNav />
     </div>
   )
+}
+
+export default function App() {
+  const { session, loading: authLoading, signIn, signOut, verifyOtp } = useAuth()
+
+  if (authLoading) {
+    return (
+      <div className="flex h-dvh items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500" />
+      </div>
+    )
+  }
+
+  if (!session) {
+    return <Login onSignIn={signIn} onVerifyOtp={verifyOtp} />
+  }
+
+  return <AuthenticatedApp signOut={signOut} />
 }
