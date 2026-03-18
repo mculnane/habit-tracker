@@ -1,6 +1,7 @@
 {
   "name": "habit-tracker",
   "private": true,
+  "description": "Personal habit tracking PWA built with React, TypeScript, and Supabase",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
