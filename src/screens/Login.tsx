@@ -51,7 +51,7 @@ export function Login({ onSignIn, onVerifyOtp }: Props) {
             <div className="rounded-xl bg-slate-800/60 p-6">
               <p className="text-lg font-medium text-slate-200">Enter your code</p>
               <p className="mt-2 text-sm text-slate-400">
-                We sent a 6-digit code to{' '}
+                We sent a code to{' '}
                 <span className="font-medium text-slate-300">{email}</span>.
               </p>
             </div>
@@ -60,12 +60,12 @@ export function Login({ onSignIn, onVerifyOtp }: Props) {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={6}
-              pattern="[0-9]{6}"
+              maxLength={8}
+              pattern="[0-9]{6,8}"
               required
-              placeholder="000000"
+              placeholder="00000000"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
               className="rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 text-center text-2xl tracking-widest text-slate-100 placeholder-slate-500 outline-none focus:border-indigo-500"
             />
 
@@ -73,7 +73,7 @@ export function Login({ onSignIn, onVerifyOtp }: Props) {
 
             <button
               type="submit"
-              disabled={submitting || code.length !== 6}
+              disabled={submitting || code.length < 6}
               className="rounded-lg bg-indigo-600 px-4 py-3 font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
             >
               {submitting ? 'Verifying...' : 'Verify'}
