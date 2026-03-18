@@ -27,7 +27,7 @@ export function useTasks() {
   }, [fetchTasks])
 
   const addTask = useCallback(
-    async (task: Omit<Task, 'id' | 'user_id' | 'created_at'>) => {
+    async (task: Omit<Task, 'id' | 'user_id' | 'created_at' | 'sort_order'>) => {
       const { data, error } = await supabase
         .from('tasks')
         .insert(task)
@@ -63,40 +63,6 @@ export function useTasks() {
     []
   )
 
-  const swapTaskOrder = useCallback(
-    async (taskAId: string, taskBId: string) => {
-      // Optimistic: swap sort_order in local state immediately
-      setTasks((prev) => {
-        const a = prev.find((t) => t.id === taskAId)
-        const b = prev.find((t) => t.id === taskBId)
-        if (!a || !b) return prev
-
-        const aOrder = a.sort_order
-        const bOrder = b.sort_order
-
-        return prev
-          .map((t) => {
-            if (t.id === taskAId) return { ...t, sort_order: bOrder }
-            if (t.id === taskBId) return { ...t, sort_order: aOrder }
-            return t
-          })
-          .sort((x, y) => x.sort_order - y.sort_order)
-      })
-
-      // Persist to Supabase in background
-      const tasks_snapshot = tasks
-      const a = tasks_snapshot.find((t) => t.id === taskAId)
-      const b = tasks_snapshot.find((t) => t.id === taskBId)
-      if (a && b) {
-        await Promise.all([
-          supabase.from('tasks').update({ sort_order: b.sort_order }).eq('id', taskAId),
-          supabase.from('tasks').update({ sort_order: a.sort_order }).eq('id', taskBId),
-        ])
-      }
-    },
-    [tasks]
-  )
-
   const deleteTask = useCallback(async (id: string) => {
     const { error } = await supabase.from('tasks').delete().eq('id', id)
 
@@ -108,5 +74,5 @@ export function useTasks() {
     return true
   }, [])
 
-  return { tasks, loading, fetchTasks, addTask, updateTask, swapTaskOrder, deleteTask }
+  return { tasks, loading, fetchTasks, addTask, updateTask, deleteTask }
 }

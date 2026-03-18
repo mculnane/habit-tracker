@@ -10,7 +10,7 @@ import { useAuth } from './hooks/useAuth'
 
 export default function App() {
   const { session, loading: authLoading, signIn, signOut, verifyOtp } = useAuth()
-  const { tasks, loading: tasksLoading, addTask, updateTask, swapTaskOrder, deleteTask } = useTasks()
+  const { tasks, loading: tasksLoading, addTask, updateTask, deleteTask } = useTasks()
   const {
     completions,
     loading: completionsLoading,
@@ -75,7 +75,6 @@ export default function App() {
               tasks={tasks}
               onAdd={addTask}
               onUpdate={updateTask}
-              onSwap={swapTaskOrder}
               onDelete={deleteTask}
             />
           }

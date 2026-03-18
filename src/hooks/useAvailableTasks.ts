@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { isTaskAvailable, getCompletionCount, getRequiredCount } from '../lib/periods'
+import { sortByUrgency } from '../lib/sortTasks'
 import type { Task, Completion, ContextFilter } from '../lib/types'
 
 export interface AvailableTask {
@@ -16,7 +17,7 @@ export function useAvailableTasks(
   return useMemo(() => {
     const now = new Date()
 
-    return tasks
+    const mapped = tasks
       .filter((task) => {
         if (!isTaskAvailable(task, completions, now)) return false
         if (contextFilter === 'all') return true
@@ -27,5 +28,7 @@ export function useAvailableTasks(
         completedCount: getCompletionCount(task, completions, now),
         requiredCount: getRequiredCount(task),
       }))
+
+    return sortByUrgency(mapped)
   }, [tasks, completions, contextFilter])
 }
