@@ -9,7 +9,7 @@ import { useCompletions } from './hooks/useCompletions'
 import { useAuth } from './hooks/useAuth'
 
 export default function App() {
-  const { session, loading: authLoading, signIn, signOut } = useAuth()
+  const { session, loading: authLoading, signIn, signOut, verifyOtp } = useAuth()
   const { tasks, loading: tasksLoading, addTask, updateTask, swapTaskOrder, deleteTask } = useTasks()
   const {
     completions,
@@ -28,7 +28,7 @@ export default function App() {
   }
 
   if (!session) {
-    return <Login onSignIn={signIn} />
+    return <Login onSignIn={signIn} onVerifyOtp={verifyOtp} />
   }
 
   const loading = tasksLoading || completionsLoading
