@@ -16,7 +16,6 @@ export function useCompletions(tasks: Task[]) {
       return
     }
 
-    // Get all unique current period keys we need to query
     const now = new Date()
     const periodKeys = new Set<string>()
     for (const task of tasks) {
@@ -37,8 +36,39 @@ export function useCompletions(tasks: Task[]) {
   }, [tasks])
 
   useEffect(() => {
-    fetchCompletions()
-  }, [fetchCompletions])
+    let cancelled = false
+
+    if (tasks.length === 0) {
+      Promise.resolve().then(() => {
+        if (cancelled) return
+        setCompletions([])
+        setLoading(false)
+      })
+      return () => { cancelled = true }
+    }
+
+    const now = new Date()
+    const periodKeys = new Set<string>()
+    for (const task of tasks) {
+      periodKeys.add(getPeriodKey(task.frequency_type, task.frequency_value, now))
+    }
+
+    supabase
+      .from('completions')
+      .select('*')
+      .in('period_key', Array.from(periodKeys))
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (error) {
+          console.error('Failed to fetch completions:', error)
+        } else {
+          setCompletions(data as Completion[])
+        }
+        setLoading(false)
+      })
+
+    return () => { cancelled = true }
+  }, [tasks])
 
   const completeTask = useCallback(
     async (task: Task) => {

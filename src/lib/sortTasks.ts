@@ -1,4 +1,12 @@
 import type { Task } from './types'
+import type { PressureLevel } from './deadlinePressure'
+
+const pressureOrder: Record<PressureLevel, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+  none: 3,
+}
 
 /**
  * Returns a numeric urgency weight for sorting. Lower = more urgent (should appear first).
@@ -27,14 +35,20 @@ function getUrgencyWeight(task: Task): number {
   }
 }
 
-export function sortByUrgency<T extends { task: Task }>(items: T[]): T[]
+export function sortByUrgency<T extends { task: Task; pressure?: PressureLevel }>(items: T[]): T[]
 export function sortByUrgency(items: Task[]): Task[]
-export function sortByUrgency(items: (Task | { task: Task })[]): (Task | { task: Task })[] {
+export function sortByUrgency(items: (Task | { task: Task; pressure?: PressureLevel })[]): (Task | { task: Task; pressure?: PressureLevel })[] {
   return [...items].sort((a, b) => {
     const taskA = 'task' in a ? a.task : a
     const taskB = 'task' in b ? b.task : b
     const weightDiff = getUrgencyWeight(taskA) - getUrgencyWeight(taskB)
     if (weightDiff !== 0) return weightDiff
+
+    const pressureA = 'pressure' in a ? a.pressure ?? 'none' : 'none'
+    const pressureB = 'pressure' in b ? b.pressure ?? 'none' : 'none'
+    const pressureDiff = pressureOrder[pressureA] - pressureOrder[pressureB]
+    if (pressureDiff !== 0) return pressureDiff
+
     return taskA.name.localeCompare(taskB.name)
   })
 }

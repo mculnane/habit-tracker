@@ -1,10 +1,18 @@
 import { formatFrequency } from '../lib/periods'
 import type { AvailableTask } from '../hooks/useAvailableTasks'
+import type { PressureLevel } from '../lib/deadlinePressure'
 
 const contextColors = {
   work: 'bg-blue-500',
   personal: 'bg-emerald-500',
   both: 'bg-violet-500',
+}
+
+const pressureBorder: Record<PressureLevel, string> = {
+  none: '',
+  low: 'border-l-4 border-l-sky-500/40',
+  medium: 'border-l-4 border-l-amber-500/70',
+  high: 'border-l-4 border-l-red-500',
 }
 
 interface Props {
@@ -13,13 +21,13 @@ interface Props {
 }
 
 export function TaskCard({ item, onComplete }: Props) {
-  const { task, completedCount, requiredCount } = item
+  const { task, completedCount, requiredCount, pressure } = item
   const showProgress = requiredCount > 1
 
   return (
     <button
       onClick={onComplete}
-      className="flex w-full items-center gap-3 rounded-2xl bg-slate-800 px-4 py-4 text-left transition-all active:scale-[0.97] active:bg-slate-700"
+      className={`flex w-full items-center gap-3 rounded-2xl bg-slate-800 px-4 py-4 text-left transition-all active:scale-[0.97] active:bg-slate-700 ${pressureBorder[pressure]}`}
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 transition-colors hover:border-indigo-400">
         <svg
