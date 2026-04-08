@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { isTaskAvailable, getCompletionCount, getRequiredCount } from '../lib/periods'
-import { getDeadlinePressure, type PressureLevel } from '../lib/deadlinePressure'
+import { getUrgencyScore } from '../lib/deadlinePressure'
 import { sortByUrgency } from '../lib/sortTasks'
 import type { Task, Completion, ContextFilter } from '../lib/types'
 
@@ -8,7 +8,7 @@ export interface AvailableTask {
   task: Task
   completedCount: number
   requiredCount: number
-  pressure: PressureLevel
+  urgencyScore: number
 }
 
 export function useAvailableTasks(
@@ -29,7 +29,7 @@ export function useAvailableTasks(
         task,
         completedCount: getCompletionCount(task, completions, now),
         requiredCount: getRequiredCount(task),
-        pressure: getDeadlinePressure(task, completions, now),
+        urgencyScore: getUrgencyScore(task, completions, now),
       }))
 
     return sortByUrgency(mapped)

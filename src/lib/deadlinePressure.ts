@@ -8,8 +8,6 @@ import {
 import { getPeriodKey, getRequiredCount } from './periods'
 import type { Task, Completion } from './types'
 
-export type PressureLevel = 'none' | 'low' | 'medium' | 'high'
-
 function getDaysLeftInPeriod(task: Task, now: Date): number {
   switch (task.frequency_type) {
     case 'daily':
@@ -36,6 +34,7 @@ function getDaysLeftInPeriod(task: Task, now: Date): number {
     }
 
     case 'custom_days':
+      // Handled separately in getUrgencyScore
       return task.frequency_value
   }
 }
@@ -47,15 +46,16 @@ function getCompletionsInPeriod(task: Task, completions: Completion[], now: Date
   ).length
 }
 
-export function getDeadlinePressure(
+/**
+ * Returns a numeric urgency score: remaining_completions / remaining_days.
+ * Higher = more urgent. A score >= 1.0 means "must do today or already overdue".
+ */
+export function getUrgencyScore(
   task: Task,
   completions: Completion[],
   now: Date = new Date()
-): PressureLevel {
-  // Daily tasks are always due today — skip to avoid visual noise
-  if (task.frequency_type === 'daily') return 'none'
-
-  // For custom_days, use days since last completion
+): number {
+  // For custom_days, compute days left from last completion
   if (task.frequency_type === 'custom_days') {
     const taskCompletions = completions
       .filter((c) => c.task_id === task.id)
@@ -67,22 +67,20 @@ export function getDeadlinePressure(
       : parseISO(task.created_at)
 
     const daysSince = differenceInCalendarDays(now, anchor)
-    const daysLeft = task.frequency_value - daysSince
+    const daysLeft = Math.max(task.frequency_value - daysSince, 0)
 
-    if (daysLeft <= 1) return 'high'
-    if (daysLeft <= 2) return 'medium'
-    return 'low'
+    if (daysLeft === 0) return Infinity
+    return 1 / daysLeft
   }
 
   const required = getRequiredCount(task)
   const completed = getCompletionsInPeriod(task, completions, now)
   const remaining = required - completed
 
-  if (remaining <= 0) return 'none'
+  if (remaining <= 0) return 0
 
   const daysLeft = getDaysLeftInPeriod(task, now)
 
-  if (daysLeft <= remaining) return 'high'
-  if (daysLeft <= remaining * 2) return 'medium'
-  return 'low'
+  if (daysLeft <= 0) return Infinity
+  return remaining / daysLeft
 }

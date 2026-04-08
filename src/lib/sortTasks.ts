@@ -1,16 +1,8 @@
 import type { Task } from './types'
-import type { PressureLevel } from './deadlinePressure'
-
-const pressureOrder: Record<PressureLevel, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-  none: 3,
-}
 
 /**
  * Returns a numeric urgency weight for sorting. Lower = more urgent (should appear first).
- * Normalizes all frequencies to approximate "times per month" then inverts.
+ * Used for plain Task[] sorting (e.g. Manage screen) where completion data isn't available.
  */
 function getUrgencyWeight(task: Task): number {
   switch (task.frequency_type) {
@@ -35,20 +27,27 @@ function getUrgencyWeight(task: Task): number {
   }
 }
 
-export function sortByUrgency<T extends { task: Task; pressure?: PressureLevel }>(items: T[]): T[]
+export function sortByUrgency<T extends { task: Task; urgencyScore?: number }>(items: T[]): T[]
 export function sortByUrgency(items: Task[]): Task[]
-export function sortByUrgency(items: (Task | { task: Task; pressure?: PressureLevel })[]): (Task | { task: Task; pressure?: PressureLevel })[] {
+export function sortByUrgency(items: (Task | { task: Task; urgencyScore?: number })[]): (Task | { task: Task; urgencyScore?: number })[] {
   return [...items].sort((a, b) => {
+    const hasScore = 'urgencyScore' in a && 'urgencyScore' in b
+    if (hasScore) {
+      // Sort by urgency score descending (higher = more urgent = first)
+      const scoreA = (a as { urgencyScore?: number }).urgencyScore ?? 0
+      const scoreB = (b as { urgencyScore?: number }).urgencyScore ?? 0
+      const scoreDiff = scoreB - scoreA
+      if (scoreDiff !== 0) return scoreDiff
+    } else {
+      // Fallback to static frequency weight for plain Task[] (Manage screen)
+      const taskA = 'task' in a ? a.task : a
+      const taskB = 'task' in b ? b.task : b
+      const weightDiff = getUrgencyWeight(taskA) - getUrgencyWeight(taskB)
+      if (weightDiff !== 0) return weightDiff
+    }
+
     const taskA = 'task' in a ? a.task : a
     const taskB = 'task' in b ? b.task : b
-    const weightDiff = getUrgencyWeight(taskA) - getUrgencyWeight(taskB)
-    if (weightDiff !== 0) return weightDiff
-
-    const pressureA = 'pressure' in a ? a.pressure ?? 'none' : 'none'
-    const pressureB = 'pressure' in b ? b.pressure ?? 'none' : 'none'
-    const pressureDiff = pressureOrder[pressureA] - pressureOrder[pressureB]
-    if (pressureDiff !== 0) return pressureDiff
-
     return taskA.name.localeCompare(taskB.name)
   })
 }
