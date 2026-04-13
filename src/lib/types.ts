@@ -1,5 +1,3 @@
-export type Context = 'work' | 'personal' | 'both'
-
 export type FrequencyType =
   | 'daily'
   | 'weekly'
@@ -13,7 +11,6 @@ export interface Task {
   id: string
   user_id: string
   name: string
-  context: Context
   frequency_type: FrequencyType
   frequency_value: number
   sort_order: number
@@ -28,5 +25,3 @@ export interface Completion {
   completed_at: string
   period_key: string
 }
-
-export type ContextFilter = 'all' | 'work' | 'personal'

@@ -2,19 +2,12 @@ import { useState } from 'react'
 import { TaskForm } from '../components/TaskForm'
 import { formatFrequency } from '../lib/periods'
 import { sortByUrgency } from '../lib/sortTasks'
-import type { Task, Context, FrequencyType } from '../lib/types'
-
-const contextColors = {
-  work: 'bg-blue-500',
-  personal: 'bg-emerald-500',
-  both: 'bg-violet-500',
-}
+import type { Task, FrequencyType } from '../lib/types'
 
 interface Props {
   tasks: Task[]
   onAdd: (data: {
     name: string
-    context: Context
     frequency_type: FrequencyType
     frequency_value: number
     is_active: boolean
@@ -82,9 +75,6 @@ export function Manage({ tasks, onAdd, onUpdate, onDelete }: Props) {
               key={task.id}
               className="flex items-center gap-3 rounded-2xl bg-slate-800 px-4 py-3"
             >
-              <span
-                className={`h-2 w-2 shrink-0 rounded-full ${contextColors[task.context]}`}
-              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-slate-100">{task.name}</div>
                 <div className="text-xs text-slate-400">{formatFrequency(task)}</div>
@@ -152,9 +142,6 @@ export function Manage({ tasks, onAdd, onUpdate, onDelete }: Props) {
               key={task.id}
               className="flex items-center gap-3 rounded-2xl bg-slate-800/50 px-4 py-3 opacity-60"
             >
-              <span
-                className={`h-2 w-2 shrink-0 rounded-full ${contextColors[task.context]}`}
-              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-slate-300">{task.name}</div>
                 <div className="text-xs text-slate-500">{formatFrequency(task)}</div>

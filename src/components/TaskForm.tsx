@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Context, FrequencyType, Task } from '../lib/types'
+import type { FrequencyType, Task } from '../lib/types'
 
 const frequencyOptions: { value: FrequencyType; label: string; showValue: boolean }[] = [
   { value: 'daily', label: 'Daily', showValue: false },
@@ -11,17 +11,10 @@ const frequencyOptions: { value: FrequencyType; label: string; showValue: boolea
   { value: 'custom_days', label: 'Every N days', showValue: true },
 ]
 
-const contextOptions: { value: Context; label: string }[] = [
-  { value: 'personal', label: 'Personal' },
-  { value: 'work', label: 'Work' },
-  { value: 'both', label: 'Both' },
-]
-
 interface Props {
   initial?: Task
   onSubmit: (data: {
     name: string
-    context: Context
     frequency_type: FrequencyType
     frequency_value: number
   }) => void
@@ -30,7 +23,6 @@ interface Props {
 
 export function TaskForm({ initial, onSubmit, onCancel }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
-  const [context, setContext] = useState<Context>(initial?.context ?? 'personal')
   const [frequencyType, setFrequencyType] = useState<FrequencyType>(
     initial?.frequency_type ?? 'daily'
   )
@@ -45,7 +37,6 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
     if (!name.trim()) return
     onSubmit({
       name: name.trim(),
-      context,
       frequency_type: frequencyType,
       frequency_value: Math.max(1, parseInt(frequencyValue) || 1),
     })
@@ -63,26 +54,6 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
           autoFocus
           className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         />
-      </div>
-
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-300">Context</label>
-        <div className="flex gap-2">
-          {contextOptions.map((opt) => (
-            <button
-              type="button"
-              key={opt.value}
-              onClick={() => setContext(opt.value)}
-              className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                context === opt.value
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div>

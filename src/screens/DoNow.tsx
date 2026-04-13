@@ -1,9 +1,7 @@
-import { useState } from 'react'
-import { ContextFilter } from '../components/ContextFilter'
 import { TaskCard } from '../components/TaskCard'
 import { Toast } from '../components/Toast'
 import { useAvailableTasks } from '../hooks/useAvailableTasks'
-import type { Task, Completion, ContextFilter as ContextFilterType } from '../lib/types'
+import type { Task, Completion } from '../lib/types'
 
 interface Props {
   tasks: Task[]
@@ -14,14 +12,12 @@ interface Props {
 }
 
 export function DoNow({ tasks, completions, onComplete, undoItem, onUndo }: Props) {
-  const [contextFilter, setContextFilter] = useState<ContextFilterType>('all')
-  const available = useAvailableTasks(tasks, completions, contextFilter)
+  const available = useAvailableTasks(tasks, completions)
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-24 pt-4">
       <div>
-        <h1 className="mb-3 text-2xl font-bold text-slate-100">What can I do?</h1>
-        <ContextFilter value={contextFilter} onChange={setContextFilter} />
+        <h1 className="text-2xl font-bold text-slate-100">What can I do?</h1>
       </div>
 
       {available.length === 0 ? (

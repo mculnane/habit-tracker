@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { isTaskAvailable, getCompletionCount, getRequiredCount } from '../lib/periods'
 import { getUrgencyScore } from '../lib/deadlinePressure'
 import { sortByUrgency } from '../lib/sortTasks'
-import type { Task, Completion, ContextFilter } from '../lib/types'
+import type { Task, Completion } from '../lib/types'
 
 export interface AvailableTask {
   task: Task
@@ -13,18 +13,13 @@ export interface AvailableTask {
 
 export function useAvailableTasks(
   tasks: Task[],
-  completions: Completion[],
-  contextFilter: ContextFilter
+  completions: Completion[]
 ) {
   return useMemo(() => {
     const now = new Date()
 
     const mapped = tasks
-      .filter((task) => {
-        if (!isTaskAvailable(task, completions, now)) return false
-        if (contextFilter === 'all') return true
-        return task.context === contextFilter || task.context === 'both'
-      })
+      .filter((task) => isTaskAvailable(task, completions, now))
       .map((task) => ({
         task,
         completedCount: getCompletionCount(task, completions, now),
@@ -33,5 +28,5 @@ export function useAvailableTasks(
       }))
 
     return sortByUrgency(mapped)
-  }, [tasks, completions, contextFilter])
+  }, [tasks, completions])
 }
