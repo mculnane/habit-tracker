@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon-dark.svg', 'favicon-light.svg', 'apple-touch-icon-dark.png', 'apple-touch-icon-light.png'],
+      includeAssets: ['favicon-dark.svg', 'favicon-light.svg', 'apple-touch-icon-dark.png'],
       manifest: {
         name: 'Habit Tracker',
         short_name: 'Habits',
