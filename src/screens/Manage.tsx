@@ -34,7 +34,7 @@ export function Manage({ tasks, onAdd, onUpdate, onDelete }: Props) {
               setEditingTask(null)
               setShowForm(true)
             }}
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-indigo-900/40 transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             + Add
           </button>
@@ -162,9 +162,14 @@ export function Manage({ tasks, onAdd, onUpdate, onDelete }: Props) {
 
       {tasks.length === 0 && !showForm && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg font-medium text-slate-300">No tasks yet</p>
-          <p className="mt-1 text-sm text-slate-500">
-            Tap "+ Add" to create your first habit or task.
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 ring-1 ring-white/5">
+            <svg className="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+          <p className="text-lg font-medium text-slate-200">No tasks yet</p>
+          <p className="mt-1 max-w-[16rem] text-sm text-slate-500">
+            Tap &ldquo;+ Add&rdquo; to create your first habit or task.
           </p>
         </div>
       )}

@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon-dark.svg', 'favicon-light.svg', 'apple-touch-icon-dark.png', 'apple-touch-icon-light.png'],
       manifest: {
         name: 'Habit Tracker',
         short_name: 'Habits',
@@ -20,12 +20,12 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: '/icon-192.png',
+            src: '/icon-192-dark.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/icon-512.png',
+            src: '/icon-512-dark.png',
             sizes: '512x512',
             type: 'image/png',
           },

@@ -20,13 +20,13 @@ export function Stats({ tasks, completions }: Props) {
       </div>
 
       <div className="space-y-3">
-        <div className="rounded-2xl bg-slate-800 px-4 py-3">
+        <div className="rounded-2xl bg-slate-800 px-4 py-3 ring-1 ring-white/5 shadow-sm shadow-black/20">
           <div className="text-sm text-slate-400">Weekly progress</div>
           <div className="mt-1 text-lg font-semibold text-slate-100">
             {stats.weeklyCompleted} / {stats.weeklyTotal} tasks
           </div>
         </div>
-        <div className="rounded-2xl bg-slate-800 px-4 py-3">
+        <div className="rounded-2xl bg-slate-800 px-4 py-3 ring-1 ring-white/5 shadow-sm shadow-black/20">
           <div className="text-sm text-slate-400">Monthly progress</div>
           <div className="mt-1 text-lg font-semibold text-slate-100">
             {stats.monthlyCompleted} / {stats.monthlyTotal} tasks

@@ -52,7 +52,7 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Practice Italian"
           autoFocus
-          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
         />
       </div>
 
@@ -61,7 +61,7 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
         <select
           value={frequencyType}
           onChange={(e) => setFrequencyType(e.target.value as FrequencyType)}
-          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
         >
           {frequencyOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -82,7 +82,7 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
             max="31"
             value={frequencyValue}
             onChange={(e) => setFrequencyValue(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-slate-100 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
           />
         </div>
       )}
@@ -91,13 +91,13 @@ export function TaskForm({ initial, onSubmit, onCancel }: Props) {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl bg-slate-800 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700"
+          className="flex-1 rounded-xl bg-slate-800 py-3 text-sm font-medium text-slate-300 ring-1 ring-white/5 transition-colors hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-500"
+          className="flex-1 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-900/40 transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
           {initial ? 'Save' : 'Add Task'}
         </button>

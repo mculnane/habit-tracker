@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { BottomNav } from './components/BottomNav'
+import { Spinner } from './components/Spinner'
 import { DoNow } from './screens/DoNow'
 import { Stats } from './screens/Stats'
 import { Manage } from './screens/Manage'
@@ -22,8 +23,8 @@ function AuthenticatedApp({ signOut }: { signOut: () => void }) {
 
   if (loading) {
     return (
-      <div className="flex h-dvh items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500" />
+      <div className="flex h-dvh items-center justify-center text-indigo-400">
+        <Spinner size={44} />
       </div>
     )
   }
@@ -33,7 +34,7 @@ function AuthenticatedApp({ signOut }: { signOut: () => void }) {
       <div className="flex items-center justify-end px-4 pt-3">
         <button
           onClick={signOut}
-          className="text-xs text-slate-500 hover:text-slate-300"
+          className="rounded text-xs text-slate-500 transition-colors hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
         >
           Sign out
         </button>
@@ -77,8 +78,8 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div className="flex h-dvh items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500" />
+      <div className="flex h-dvh items-center justify-center text-indigo-400">
+        <Spinner size={44} />
       </div>
     )
   }

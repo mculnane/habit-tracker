@@ -44,10 +44,16 @@ export function BottomNav() {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className={`flex flex-1 flex-col items-center gap-0.5 pb-2 pt-2 transition-colors ${
+              className={`relative flex flex-1 flex-col items-center gap-0.5 pb-2 pt-2 transition-colors focus-visible:outline-none ${
                 active ? 'text-indigo-400' : 'text-slate-500 hover:text-slate-300'
               }`}
             >
+              <span
+                aria-hidden
+                className={`absolute inset-x-0 top-0 mx-auto h-0.5 w-6 rounded-full bg-indigo-400 transition-opacity ${
+                  active ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
               {tab.icon}
               <span className="text-[10px] font-medium">{tab.label}</span>
             </button>

@@ -13,7 +13,7 @@ export function TaskCard({ item, onComplete }: Props) {
   return (
     <button
       onClick={onComplete}
-      className="flex w-full items-center gap-3 rounded-2xl bg-slate-800 px-4 py-4 text-left transition-all active:scale-[0.97] active:bg-slate-700"
+      className="flex w-full items-center gap-3 rounded-2xl bg-slate-800 px-4 py-4 text-left ring-1 ring-white/5 shadow-sm shadow-black/20 transition-all active:scale-[0.97] active:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60"
     >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-600 transition-colors hover:border-indigo-400">
         <svg

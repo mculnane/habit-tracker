@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-surface: #0f172a;
+  --color-surface-raised: #1e293b;
+  --color-surface-sunken: #0b1120;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
@@ -30,4 +41,15 @@
 
 .animate-slide-up {
   animation: slide-up 0.2s ease-out;
+}
+
+@keyframes spinner-trace {
+  0%   { stroke-dashoffset: 120; opacity: 0.2; }
+  40%  { stroke-dashoffset: 0;   opacity: 1; }
+  70%  { stroke-dashoffset: 0;   opacity: 1; }
+  100% { stroke-dashoffset: -120; opacity: 0.2; }
+}
+
+.animate-spinner-trace {
+  animation: spinner-trace 1.4s ease-in-out infinite;
 }

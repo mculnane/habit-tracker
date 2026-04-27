@@ -22,10 +22,14 @@ export function DoNow({ tasks, completions, onComplete, undoItem, onUndo }: Prop
 
       {available.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-3 text-5xl">&#10024;</div>
-          <p className="text-lg font-medium text-slate-300">All caught up!</p>
-          <p className="mt-1 text-sm text-slate-500">
-            Nothing left to do right now. Nice work.
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-500/10 ring-1 ring-indigo-400/20">
+            <svg className="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p className="text-lg font-medium text-slate-200">All caught up</p>
+          <p className="mt-1 max-w-[16rem] text-sm text-slate-500">
+            Nothing left to do right now. Check back later.
           </p>
         </div>
       ) : (
