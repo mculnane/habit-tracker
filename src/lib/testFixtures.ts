@@ -28,7 +28,7 @@ export function makeCompletion(task: Task, completedAt: string, periodKey?: stri
     task_id: task.id,
     completed_at: completedAt,
     period_key:
-      periodKey ?? getPeriodKey(task.frequency_type, task.frequency_value, new Date(completedAt)),
+      periodKey ?? getPeriodKey(task.frequency_type, new Date(completedAt)),
   }
 }
 

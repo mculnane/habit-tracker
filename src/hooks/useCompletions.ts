@@ -1,17 +1,45 @@
 import { useCallback, useEffect, useState, useRef } from 'react'
+import { startOfDay, subDays } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import { getPeriodKey } from '../lib/periods'
 import type { Completion, Task } from '../lib/types'
 
-function fetchCompletionsFromDb(tasks: Task[]) {
-  const now = new Date()
-  const periodKeys = new Set(
-    tasks.map((task) => getPeriodKey(task.frequency_type, task.frequency_value, now))
-  )
-  return supabase
-    .from('completions')
-    .select('*')
-    .in('period_key', Array.from(periodKeys))
+/**
+ * Loads the completions the schedule needs: everything in the current period
+ * for period-based tasks, plus recent history for every-N-days tasks, which
+ * are scheduled from their last completion rather than by period. The history
+ * window is generous so the overdue amount stays exact well past the due day;
+ * anything older counts as never done, which still scores as overdue.
+ */
+async function fetchCompletionsFromDb(tasks: Task[], now: Date) {
+  const periodTasks = tasks.filter((t) => t.frequency_type !== 'custom_days')
+  const intervalTasks = tasks.filter((t) => t.frequency_type === 'custom_days')
+
+  const periodQuery =
+    periodTasks.length > 0
+      ? supabase
+          .from('completions')
+          .select('*')
+          .in('period_key', Array.from(new Set(periodTasks.map((t) => getPeriodKey(t.frequency_type, now)))))
+      : null
+
+  const longestInterval = Math.max(0, ...intervalTasks.map((t) => t.frequency_value))
+  const historyQuery =
+    intervalTasks.length > 0
+      ? supabase
+          .from('completions')
+          .select('*')
+          .in('task_id', intervalTasks.map((t) => t.id))
+          .gte('completed_at', startOfDay(subDays(now, longestInterval * 2 + 1)).toISOString())
+      : null
+
+  const byId = new Map<string, Completion>()
+  for (const result of await Promise.all([periodQuery, historyQuery])) {
+    if (!result) continue
+    if (result.error) return { data: null, error: result.error }
+    for (const completion of result.data as Completion[]) byId.set(completion.id, completion)
+  }
+  return { data: Array.from(byId.values()), error: null }
 }
 
 /**
@@ -43,12 +71,12 @@ export function useCompletions(tasks: Task[], tasksLoaded: boolean) {
       return () => { cancelled = true }
     }
 
-    fetchCompletionsFromDb(tasks).then(({ data, error }) => {
+    fetchCompletionsFromDb(tasks, new Date()).then(({ data, error }) => {
       if (cancelled) return
       if (error) {
         console.error('Failed to fetch completions:', error)
       } else {
-        setCompletions(data as Completion[])
+        setCompletions(data)
       }
       setLoading(false)
     })
@@ -58,8 +86,7 @@ export function useCompletions(tasks: Task[], tasksLoaded: boolean) {
 
   const completeTask = useCallback(
     async (task: Task) => {
-      const now = new Date()
-      const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, now)
+      const periodKey = getPeriodKey(task.frequency_type, new Date())
 
       const { data, error } = await supabase
         .from('completions')

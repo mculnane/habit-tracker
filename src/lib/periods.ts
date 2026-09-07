@@ -1,17 +1,25 @@
-import { getISOWeek, getISOWeekYear, format, getDayOfYear, isWeekend, isSameDay, parseISO } from 'date-fns'
+import {
+  getISOWeek,
+  getISOWeekYear,
+  format,
+  isWeekend,
+  isSameDay,
+  parseISO,
+  differenceInCalendarDays,
+} from 'date-fns'
 import type { Task, Completion, FrequencyType } from './types'
 
-export function getPeriodKey(
-  frequencyType: FrequencyType,
-  frequencyValue: number,
-  date: Date
-): string {
+export function getPeriodKey(frequencyType: FrequencyType, date: Date): string {
   const year = getISOWeekYear(date)
   const week = getISOWeek(date)
 
   switch (frequencyType) {
+    // Every-N-days tasks are scheduled from their last completion rather than
+    // by period (see isTaskAvailable), so like daily and weekdays tasks each
+    // completion is keyed to its own day
     case 'daily':
     case 'weekdays':
+    case 'custom_days':
       return format(date, 'yyyy-MM-dd')
 
     case 'weekly':
@@ -26,12 +34,6 @@ export function getPeriodKey(
     case 'monthly':
     case 'x_per_month':
       return format(date, 'yyyy-MM')
-
-    case 'custom_days': {
-      const dayOfYear = getDayOfYear(date)
-      const interval = Math.floor((dayOfYear - 1) / frequencyValue)
-      return `${date.getFullYear()}-CD${String(interval).padStart(3, '0')}`
-    }
   }
 }
 
@@ -45,13 +47,30 @@ export function getRequiredCount(task: Task): number {
   }
 }
 
+/** When `task` was most recently completed, or null if it never has been. */
+export function getLatestCompletionDate(task: Task, completions: Completion[]): Date | null {
+  let latest: Date | null = null
+  for (const c of completions) {
+    if (c.task_id !== task.id) continue
+    const when = parseISO(c.completed_at)
+    if (latest === null || when > latest) latest = when
+  }
+  return latest
+}
+
 export function isTaskAvailable(task: Task, completions: Completion[], date: Date = new Date()): boolean {
   if (!task.is_active) return false
 
   // Weekday tasks only apply Monday–Friday
   if (task.frequency_type === 'weekdays' && isWeekend(date)) return false
 
-  const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, date)
+  // Every-N-days tasks come back N days after they were last done
+  if (task.frequency_type === 'custom_days') {
+    const last = getLatestCompletionDate(task, completions)
+    return last === null || differenceInCalendarDays(date, last) >= task.frequency_value
+  }
+
+  const periodKey = getPeriodKey(task.frequency_type, date)
   const completionsInPeriod = completions.filter(
     (c) => c.task_id === task.id && c.period_key === periodKey
   )
@@ -72,7 +91,7 @@ export function isTaskAvailable(task: Task, completions: Completion[], date: Dat
 }
 
 export function getCompletionCount(task: Task, completions: Completion[], date: Date = new Date()): number {
-  const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, date)
+  const periodKey = getPeriodKey(task.frequency_type, date)
   return completions.filter(
     (c) => c.task_id === task.id && c.period_key === periodKey
   ).length

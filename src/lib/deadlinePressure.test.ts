@@ -38,6 +38,28 @@ describe('getUrgencyScore', () => {
     expect(getUrgencyScore(task, [], at(2026, 9, 14))).toBeCloseTo(1 / 7) // second week
   })
 
+  describe('every N days', () => {
+    const task = makeTask({
+      frequency_type: 'custom_days',
+      frequency_value: 10,
+      created_at: '2026-08-01T00:00:00+00:00',
+    })
+
+    it('ramps up to 1 on the due day and grows each day overdue', () => {
+      const done = makeCompletion(task, '2026-08-28T08:00:00+00:00')
+      expect(getUrgencyScore(task, [done], at(2026, 8, 28))).toBeCloseTo(1 / 11) // just done
+      expect(getUrgencyScore(task, [done], at(2026, 9, 6))).toBeCloseTo(1 / 2) // due tomorrow
+      expect(getUrgencyScore(task, [done], MON)).toBe(1) // due today
+      expect(getUrgencyScore(task, [done], at(2026, 9, 9))).toBe(3) // two days late
+    })
+
+    it('counts from creation when never done', () => {
+      expect(getUrgencyScore(task, [], at(2026, 8, 3))).toBeCloseTo(1 / 9) // due 11 Aug
+      expect(getUrgencyScore(task, [], at(2026, 8, 11))).toBe(1)
+      expect(getUrgencyScore(task, [], at(2026, 8, 16))).toBe(6)
+    })
+  })
+
   it('uses days left in the calendar month for monthly tasks', () => {
     const monthly = makeTask({ frequency_type: 'monthly' })
     expect(getUrgencyScore(monthly, [], MON)).toBeCloseTo(1 / 24) // 7 Sep: 24 days left including today

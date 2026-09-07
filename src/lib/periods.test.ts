@@ -14,32 +14,36 @@ const MON = at(2026, 9, 7)
 
 describe('getPeriodKey', () => {
   it('uses the calendar day for daily and weekdays tasks', () => {
-    expect(getPeriodKey('daily', 1, MON)).toBe('2026-09-07')
-    expect(getPeriodKey('weekdays', 1, MON)).toBe('2026-09-07')
+    expect(getPeriodKey('daily', MON)).toBe('2026-09-07')
+    expect(getPeriodKey('weekdays', MON)).toBe('2026-09-07')
   })
 
   it('uses the ISO week for weekly and x_per_week tasks', () => {
-    expect(getPeriodKey('weekly', 1, MON)).toBe('2026-W37')
-    expect(getPeriodKey('x_per_week', 3, at(2026, 9, 13))).toBe('2026-W37') // Sunday, same week
-    expect(getPeriodKey('weekly', 1, at(2026, 9, 6))).toBe('2026-W36')
+    expect(getPeriodKey('weekly', MON)).toBe('2026-W37')
+    expect(getPeriodKey('x_per_week', at(2026, 9, 13))).toBe('2026-W37') // Sunday, same week
+    expect(getPeriodKey('weekly', at(2026, 9, 6))).toBe('2026-W36')
   })
 
   it('keeps the ISO week-year across the new year', () => {
     // 2026 has 53 ISO weeks; Sunday 3 Jan 2027 is still in 2026-W53
-    expect(getPeriodKey('weekly', 1, at(2027, 1, 3))).toBe('2026-W53')
-    expect(getPeriodKey('weekly', 1, at(2027, 1, 4))).toBe('2027-W01')
+    expect(getPeriodKey('weekly', at(2027, 1, 3))).toBe('2026-W53')
+    expect(getPeriodKey('weekly', at(2027, 1, 4))).toBe('2027-W01')
   })
 
   it('groups pairs of ISO weeks for biweekly tasks', () => {
-    expect(getPeriodKey('biweekly', 1, at(2026, 9, 6))).toBe('2026-BW17') // W36
-    expect(getPeriodKey('biweekly', 1, MON)).toBe('2026-BW18') // W37
-    expect(getPeriodKey('biweekly', 1, at(2026, 9, 14))).toBe('2026-BW18') // W38
-    expect(getPeriodKey('biweekly', 1, at(2026, 9, 21))).toBe('2026-BW19') // W39
+    expect(getPeriodKey('biweekly', at(2026, 9, 6))).toBe('2026-BW17') // W36
+    expect(getPeriodKey('biweekly', MON)).toBe('2026-BW18') // W37
+    expect(getPeriodKey('biweekly', at(2026, 9, 14))).toBe('2026-BW18') // W38
+    expect(getPeriodKey('biweekly', at(2026, 9, 21))).toBe('2026-BW19') // W39
   })
 
   it('uses the calendar month for monthly and x_per_month tasks', () => {
-    expect(getPeriodKey('monthly', 1, MON)).toBe('2026-09')
-    expect(getPeriodKey('x_per_month', 4, MON)).toBe('2026-09')
+    expect(getPeriodKey('monthly', MON)).toBe('2026-09')
+    expect(getPeriodKey('x_per_month', MON)).toBe('2026-09')
+  })
+
+  it('keys every-N-days completions to the day they happened', () => {
+    expect(getPeriodKey('custom_days', MON)).toBe('2026-09-07')
   })
 })
 
@@ -125,6 +129,28 @@ describe('isTaskAvailable', () => {
     const done = makeCompletion(task, '2026-09-01T08:00:00+00:00')
     expect(isTaskAvailable(task, [done], MON)).toBe(false)
     expect(isTaskAvailable(task, [done], at(2026, 10, 1))).toBe(true)
+  })
+
+  describe('every N days', () => {
+    const task = makeTask({ frequency_type: 'custom_days', frequency_value: 10 })
+
+    it('is available until first done', () => {
+      expect(isTaskAvailable(task, [], MON)).toBe(true)
+    })
+
+    it('comes back N days after the last completion', () => {
+      const done = makeCompletion(task, '2026-08-28T08:00:00+00:00')
+      expect(isTaskAvailable(task, [done], at(2026, 8, 29))).toBe(false) // the next day
+      expect(isTaskAvailable(task, [done], at(2026, 9, 6))).toBe(false) // 9 days later
+      expect(isTaskAvailable(task, [done], MON)).toBe(true) // 10 days later
+      expect(isTaskAvailable(task, [done], at(2026, 9, 20))).toBe(true) // overdue
+    })
+
+    it('uses the most recent completion whatever its period key', () => {
+      const legacyKey = makeCompletion(task, '2026-09-04T08:00:00+00:00', '2026-CD024')
+      const older = makeCompletion(task, '2026-08-01T08:00:00+00:00')
+      expect(isTaskAvailable(task, [older, legacyKey], MON)).toBe(false)
+    })
   })
 
   it('ignores completions belonging to other tasks', () => {

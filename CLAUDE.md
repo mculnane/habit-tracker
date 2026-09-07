@@ -22,6 +22,7 @@
 - Supabase client configured in `src/lib/supabase.ts`
 - Env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - DoNow sort: `src/lib/deadlinePressure.ts` `getUrgencyScore()` returns `remaining / daysLeft` — higher = more urgent. Tasks you must do today sort first.
+- Every-N-days (`custom_days`) tasks are not period-based: they are scheduled from the last completion (or creation). Hidden until N days have passed, score 1 on the due day, +1 per overdue day. `useCompletions` fetches their recent history with a second query, since their `period_key` is just the completion date. Older rows still carry the legacy `YYYY-CDnnn` block keys; nothing reads those any more.
 - Manage sort: `src/lib/sortTasks.ts` `getUrgencyWeight()` — static frequency-based (no completion data available)
 - Both paths go through `sortByUrgency()` which uses urgencyScore when available, falls back to weight
 - Preview server requires auth — can't visually verify authenticated views in preview

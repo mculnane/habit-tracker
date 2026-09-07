@@ -5,7 +5,7 @@ import {
   differenceInCalendarDays,
   parseISO,
 } from 'date-fns'
-import { getPeriodKey, getRequiredCount } from './periods'
+import { getPeriodKey, getRequiredCount, getLatestCompletionDate } from './periods'
 import type { Task, Completion } from './types'
 
 function getDaysLeftInPeriod(task: Task, now: Date): number {
@@ -35,13 +35,13 @@ function getDaysLeftInPeriod(task: Task, now: Date): number {
     }
 
     case 'custom_days':
-      // Handled separately in getUrgencyScore
-      return task.frequency_value
+      // Not period-based; handled separately in getUrgencyScore
+      return 1
   }
 }
 
 function getCompletionsInPeriod(task: Task, completions: Completion[], now: Date): number {
-  const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, now)
+  const periodKey = getPeriodKey(task.frequency_type, now)
   return completions.filter(
     (c) => c.task_id === task.id && c.period_key === periodKey
   ).length
@@ -56,22 +56,15 @@ export function getUrgencyScore(
   completions: Completion[],
   now: Date = new Date()
 ): number {
-  // For custom_days, compute days left from last completion
+  // Every-N-days tasks are due N days after the last completion (or creation).
+  // Due today scores 1, like a daily task, and each overdue day adds 1. Before
+  // the due day the score ramps up as for other tasks: 1 / days until due,
+  // counting today.
   if (task.frequency_type === 'custom_days') {
-    const taskCompletions = completions
-      .filter((c) => c.task_id === task.id)
-      .map((c) => parseISO(c.completed_at))
-      .sort((a, b) => b.getTime() - a.getTime())
-
-    const anchor = taskCompletions.length > 0
-      ? taskCompletions[0]
-      : parseISO(task.created_at)
-
-    const daysSince = differenceInCalendarDays(now, anchor)
-    const daysLeft = Math.max(task.frequency_value - daysSince, 0)
-
-    if (daysLeft === 0) return Infinity
-    return 1 / daysLeft
+    const anchor = getLatestCompletionDate(task, completions) ?? parseISO(task.created_at)
+    const daysUntilDue = task.frequency_value - differenceInCalendarDays(now, anchor)
+    if (daysUntilDue <= 0) return 1 - daysUntilDue
+    return 1 / (daysUntilDue + 1)
   }
 
   const required = getRequiredCount(task)
