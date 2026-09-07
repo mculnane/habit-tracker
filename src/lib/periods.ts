@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, format, getDayOfYear, isWeekend } from 'date-fns'
+import { getISOWeek, getISOWeekYear, format, getDayOfYear, isWeekend, isSameDay, parseISO } from 'date-fns'
 import type { Task, Completion, FrequencyType } from './types'
 
 export function getPeriodKey(
@@ -62,9 +62,8 @@ export function isTaskAvailable(task: Task, completions: Completion[], date: Dat
   // For multi-per-period tasks (x_per_week, x_per_month), hide until tomorrow
   // if already completed today — you wouldn't do the same habit twice in one day
   if (task.frequency_type === 'x_per_week' || task.frequency_type === 'x_per_month') {
-    const today = format(date, 'yyyy-MM-dd')
     const completedToday = completions.some(
-      (c) => c.task_id === task.id && c.completed_at.startsWith(today)
+      (c) => c.task_id === task.id && isSameDay(parseISO(c.completed_at), date)
     )
     if (completedToday) return false
   }

@@ -106,6 +106,13 @@ describe('isTaskAvailable', () => {
     expect(isTaskAvailable(monthly, [doneToday], at(2026, 9, 8))).toBe(true)
   })
 
+  it('compares completion times in local time, not UTC', () => {
+    // 23:30Z on 6 Sep is 00:30 BST on 7 Sep, so this counts as done on Monday
+    const task = makeTask({ frequency_type: 'x_per_week', frequency_value: 3 })
+    const justAfterMidnight = makeCompletion(task, '2026-09-06T23:30:00+00:00')
+    expect(isTaskAvailable(task, [justAfterMidnight], MON)).toBe(false)
+  })
+
   it('hides biweekly tasks for both weeks of the block once done', () => {
     const task = makeTask({ frequency_type: 'biweekly' })
     const done = makeCompletion(task, '2026-09-07T08:00:00+00:00') // W37, block BW18
