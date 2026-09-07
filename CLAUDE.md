@@ -10,6 +10,7 @@
 - `npm run dev` — local dev server
 - `npm run build` — production build (outputs to `dist/`)
 - `npm run lint` — ESLint
+- `npm test` — vitest, runs under TZ=Europe/London so calendar-day tests are deterministic
 - npm is at `/usr/local/bin/npm` — prefix Bash calls with `export PATH="/usr/local/bin:$PATH"` if npm is not found
 
 ## Architecture
