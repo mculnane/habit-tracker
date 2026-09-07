@@ -16,7 +16,7 @@ function AuthenticatedApp({ signOut }: { signOut: () => void }) {
     completeTask,
     undoItem,
     undoComplete,
-  } = useCompletions(tasks)
+  } = useCompletions(tasks, !tasksLoading)
 
   const loading = tasksLoading || completionsLoading
 

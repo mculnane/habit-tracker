@@ -3,42 +3,38 @@ import { supabase } from '../lib/supabase'
 import { getPeriodKey } from '../lib/periods'
 import type { Completion, Task } from '../lib/types'
 
-export function useCompletions(tasks: Task[]) {
+function fetchCompletionsFromDb(tasks: Task[]) {
+  const now = new Date()
+  const periodKeys = new Set(
+    tasks.map((task) => getPeriodKey(task.frequency_type, task.frequency_value, now))
+  )
+  return supabase
+    .from('completions')
+    .select('*')
+    .in('period_key', Array.from(periodKeys))
+}
+
+/**
+ * Loads the completions relevant to the given tasks and exposes complete/undo.
+ *
+ * `tasksLoaded` must stay false until the task list has been fetched. Without
+ * it an empty list during startup looks like "no tasks", loading flips to
+ * false too early, and the app briefly renders with no completions — showing
+ * tasks that were already done today.
+ */
+export function useCompletions(tasks: Task[], tasksLoaded: boolean) {
   const [completions, setCompletions] = useState<Completion[]>([])
   const [loading, setLoading] = useState(true)
   const [undoItem, setUndoItem] = useState<Completion | null>(null)
   const undoTimeout = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  const fetchCompletions = useCallback(async () => {
-    if (tasks.length === 0) {
-      setCompletions([])
-      setLoading(false)
-      return
-    }
-
-    const now = new Date()
-    const periodKeys = new Set<string>()
-    for (const task of tasks) {
-      periodKeys.add(getPeriodKey(task.frequency_type, task.frequency_value, now))
-    }
-
-    const { data, error } = await supabase
-      .from('completions')
-      .select('*')
-      .in('period_key', Array.from(periodKeys))
-
-    if (error) {
-      console.error('Failed to fetch completions:', error)
-    } else {
-      setCompletions(data as Completion[])
-    }
-    setLoading(false)
-  }, [tasks])
-
   useEffect(() => {
+    if (!tasksLoaded) return
+
     let cancelled = false
 
     if (tasks.length === 0) {
+      // Deferred so the state update happens outside the effect body itself
       Promise.resolve().then(() => {
         if (cancelled) return
         setCompletions([])
@@ -47,28 +43,18 @@ export function useCompletions(tasks: Task[]) {
       return () => { cancelled = true }
     }
 
-    const now = new Date()
-    const periodKeys = new Set<string>()
-    for (const task of tasks) {
-      periodKeys.add(getPeriodKey(task.frequency_type, task.frequency_value, now))
-    }
-
-    supabase
-      .from('completions')
-      .select('*')
-      .in('period_key', Array.from(periodKeys))
-      .then(({ data, error }) => {
-        if (cancelled) return
-        if (error) {
-          console.error('Failed to fetch completions:', error)
-        } else {
-          setCompletions(data as Completion[])
-        }
-        setLoading(false)
-      })
+    fetchCompletionsFromDb(tasks).then(({ data, error }) => {
+      if (cancelled) return
+      if (error) {
+        console.error('Failed to fetch completions:', error)
+      } else {
+        setCompletions(data as Completion[])
+      }
+      setLoading(false)
+    })
 
     return () => { cancelled = true }
-  }, [tasks])
+  }, [tasks, tasksLoaded])
 
   const completeTask = useCallback(
     async (task: Task) => {
@@ -115,5 +101,5 @@ export function useCompletions(tasks: Task[]) {
     setUndoItem(null)
   }, [undoItem])
 
-  return { completions, loading, fetchCompletions, completeTask, undoItem, undoComplete }
+  return { completions, loading, completeTask, undoItem, undoComplete }
 }

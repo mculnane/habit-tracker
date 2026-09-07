@@ -2,41 +2,25 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Task } from '../lib/types'
 
-async function fetchTasksFromDb() {
-  const { data, error } = await supabase
-    .from('tasks')
-    .select('*')
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: true })
-  return { data, error }
-}
-
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchTasks = useCallback(async () => {
-    setLoading(true)
-    const { data, error } = await fetchTasksFromDb()
-    if (error) {
-      console.error('Failed to fetch tasks:', error)
-    } else {
-      setTasks(data as Task[])
-    }
-    setLoading(false)
-  }, [])
-
   useEffect(() => {
     let cancelled = false
-    fetchTasksFromDb().then(({ data, error }) => {
-      if (cancelled) return
-      if (error) {
-        console.error('Failed to fetch tasks:', error)
-      } else {
-        setTasks(data as Task[])
-      }
-      setLoading(false)
-    })
+    supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: true })
+      .then(({ data, error }) => {
+        if (cancelled) return
+        if (error) {
+          console.error('Failed to fetch tasks:', error)
+        } else {
+          setTasks(data as Task[])
+        }
+        setLoading(false)
+      })
     return () => { cancelled = true }
   }, [])
 
@@ -88,5 +72,5 @@ export function useTasks() {
     return true
   }, [])
 
-  return { tasks, loading, fetchTasks, addTask, updateTask, deleteTask }
+  return { tasks, loading, addTask, updateTask, deleteTask }
 }
