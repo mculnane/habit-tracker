@@ -1,5 +1,6 @@
 export type FrequencyType =
   | 'daily'
+  | 'weekdays'
   | 'weekly'
   | 'x_per_week'
   | 'biweekly'

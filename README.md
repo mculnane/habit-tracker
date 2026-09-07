@@ -4,7 +4,7 @@ A personal habit tracking Progressive Web App for managing recurring tasks with 
 
 ## Features
 
-- **Flexible frequencies** — daily, weekly, X times per week, biweekly, monthly, X times per month, or every N days
+- **Flexible frequencies** — daily, weekdays, weekly, X times per week, biweekly, monthly, X times per month, or every N days
 - **Context filtering** — tag tasks as work, personal, or both, and filter your view accordingly
 - **Completion stats** — weekly and monthly progress with visual completion rings
 - **Mobile-first PWA** — installable on iOS and Android, works offline-capable

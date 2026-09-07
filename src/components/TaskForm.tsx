@@ -3,6 +3,7 @@ import type { FrequencyType, Task } from '../lib/types'
 
 const frequencyOptions: { value: FrequencyType; label: string; showValue: boolean }[] = [
   { value: 'daily', label: 'Daily', showValue: false },
+  { value: 'weekdays', label: 'Weekdays (Mon–Fri)', showValue: false },
   { value: 'weekly', label: 'Weekly', showValue: false },
   { value: 'x_per_week', label: 'X times per week', showValue: true },
   { value: 'biweekly', label: 'Every 2 weeks', showValue: false },

@@ -8,6 +8,9 @@ function getUrgencyWeight(task: Task): number {
   switch (task.frequency_type) {
     case 'daily':
       return 1
+    case 'weekdays':
+      // Must-do-today on Mon–Fri — sits between daily and 7x/week
+      return 1.5
     case 'x_per_week':
       // Higher frequency_value = more urgent → lower weight
       // 7x/week ≈ daily (weight ~1.5), 1x/week = weight ~6

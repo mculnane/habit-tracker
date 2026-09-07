@@ -12,6 +12,7 @@
 - `npm run build` — production build (outputs to `dist/`)
 - `npm run lint` — ESLint
 - npm is at `/usr/local/bin/npm` — prefix Bash calls with `export PATH="/usr/local/bin:$PATH"` if npm is not found
+- Fresh install: `npm ci --legacy-peer-deps` — `@tailwindcss/vite` 4.2 declares a peer range up to Vite 7 while the project is on Vite 8; the lockfile already resolves it, plain `npm ci` fails with ERESOLVE
 
 ## Architecture
 - Uses `HashRouter` (not BrowserRouter) for GitHub Pages compatibility
@@ -39,3 +40,4 @@
 - **The project is shared — this app does not own it.** The free tier allows two projects across the whole account, so four apps live here: habit-tracker (`tasks`, `completions`), fabian's arena (`fabians_arena_progress`) and the world cup sweepstake (`sweep_*`) all share `public`, and Occupation Road has its own `occupation_road` schema. Consequences: `public` is not yours alone, so prefix or namespace anything new; **never run `supabase db push`** against it, since the CLI would treat the other apps' migrations as remote-only (apply DDL via the Supabase MCP `apply_migration`, prefixed per-app, as the others do); and storage buckets and `storage.objects` policy names are project-global, so both need an app-specific name. A new schema also has to be added by hand to Settings → API → Exposed schemas — no migration can do it, and until it is every anon query returns `PGRST106`.
 - Capacity is the thing to watch, and it is not database size — 13 MB against 500 MB. The limits that bite are per-project and **pool across every app and schema here**: 1 GB storage and 5 GB egress a month. Occupation Road is an image-carrying essay site and two more of its kind are planned in this project, so egress is the number to check if anything starts failing. Moving images to Vercel Blob is the cheaper fix before upgrading the plan.
 - `sort_order` column exists in `tasks` table but is no longer used — kept to avoid migration
+- `tasks.frequency_type` is enforced by a DB CHECK constraint (`tasks_frequency_type_check`) as well as the `FrequencyType` union in `src/lib/types.ts` — adding a frequency type needs a migration that drops and re-adds the constraint (see `habit_tracker_allow_weekdays_frequency`) plus the mirror in `supabase-setup.sql`

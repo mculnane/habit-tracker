@@ -1,4 +1,4 @@
-import { getISOWeek, getISOWeekYear, format, getDayOfYear } from 'date-fns'
+import { getISOWeek, getISOWeekYear, format, getDayOfYear, isWeekend } from 'date-fns'
 import type { Task, Completion, FrequencyType } from './types'
 
 export function getPeriodKey(
@@ -11,6 +11,7 @@ export function getPeriodKey(
 
   switch (frequencyType) {
     case 'daily':
+    case 'weekdays':
       return format(date, 'yyyy-MM-dd')
 
     case 'weekly':
@@ -47,6 +48,9 @@ export function getRequiredCount(task: Task): number {
 export function isTaskAvailable(task: Task, completions: Completion[], date: Date = new Date()): boolean {
   if (!task.is_active) return false
 
+  // Weekday tasks only apply Monday–Friday
+  if (task.frequency_type === 'weekdays' && isWeekend(date)) return false
+
   const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, date)
   const completionsInPeriod = completions.filter(
     (c) => c.task_id === task.id && c.period_key === periodKey
@@ -79,6 +83,8 @@ export function formatFrequency(task: Task): string {
   switch (task.frequency_type) {
     case 'daily':
       return 'Daily'
+    case 'weekdays':
+      return 'Weekdays'
     case 'weekly':
       return 'Weekly'
     case 'x_per_week':

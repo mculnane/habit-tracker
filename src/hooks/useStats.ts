@@ -18,18 +18,23 @@ export function useStats(tasks: Task[], completions: Completion[]): Stats {
     const activeTasks = tasks.filter((t) => t.is_active)
 
     // Weekly: tasks that have a weekly-or-more-frequent cadence
-    const weeklyTypes = new Set(['daily', 'weekly', 'x_per_week'])
+    const weeklyTypes = new Set(['daily', 'weekdays', 'weekly', 'x_per_week'])
     const weeklyTasks = activeTasks.filter((t) => weeklyTypes.has(t.frequency_type))
 
     let weeklyTotal = 0
     let weeklyCompleted = 0
 
     for (const task of weeklyTasks) {
-      const required = task.frequency_type === 'daily' ? 7 : getRequiredCount(task)
+      const isPerDay = task.frequency_type === 'daily' || task.frequency_type === 'weekdays'
+      const required = task.frequency_type === 'daily'
+        ? 7
+        : task.frequency_type === 'weekdays'
+          ? 5
+          : getRequiredCount(task)
       const periodKey = getPeriodKey(task.frequency_type, task.frequency_value, now)
 
-      // For daily tasks, count all days this week
-      if (task.frequency_type === 'daily') {
+      // For per-day tasks (daily, weekdays), count all days this week
+      if (isPerDay) {
         const year = getISOWeekYear(now)
         const week = getISOWeek(now)
         const dailyCompletions = completions.filter((c) => {
@@ -58,6 +63,9 @@ export function useStats(tasks: Task[], completions: Completion[]): Stats {
       switch (task.frequency_type) {
         case 'daily':
           required = 30 // approximate
+          break
+        case 'weekdays':
+          required = 22 // approximate
           break
         case 'weekly':
         case 'x_per_week':

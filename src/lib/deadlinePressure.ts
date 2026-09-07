@@ -11,6 +11,7 @@ import type { Task, Completion } from './types'
 function getDaysLeftInPeriod(task: Task, now: Date): number {
   switch (task.frequency_type) {
     case 'daily':
+    case 'weekdays':
       return 1
 
     case 'weekly':

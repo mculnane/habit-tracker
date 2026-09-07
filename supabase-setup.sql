@@ -4,7 +4,7 @@ CREATE TABLE tasks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id),
   name text NOT NULL,
-  frequency_type text NOT NULL CHECK (frequency_type IN ('daily', 'weekly', 'x_per_week', 'biweekly', 'monthly', 'x_per_month', 'custom_days')),
+  frequency_type text NOT NULL CHECK (frequency_type IN ('daily', 'weekdays', 'weekly', 'x_per_week', 'biweekly', 'monthly', 'x_per_month', 'custom_days')),
   frequency_value integer NOT NULL DEFAULT 1,
   sort_order integer NOT NULL DEFAULT 0,
   is_active boolean NOT NULL DEFAULT true,
