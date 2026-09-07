@@ -12,7 +12,6 @@
 - `npm run build` — production build (outputs to `dist/`)
 - `npm run lint` — ESLint
 - npm is at `/usr/local/bin/npm` — prefix Bash calls with `export PATH="/usr/local/bin:$PATH"` if npm is not found
-- Fresh install: `npm ci --legacy-peer-deps` — `@tailwindcss/vite` 4.2 declares a peer range up to Vite 7 while the project is on Vite 8; the lockfile already resolves it, plain `npm ci` fails with ERESOLVE
 
 ## Architecture
 - Uses `HashRouter` (not BrowserRouter) for GitHub Pages compatibility
