@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom'
 import { BottomNav } from './components/BottomNav'
 import { Spinner } from './components/Spinner'
 import { DoNow } from './screens/DoNow'
-import { Stats } from './screens/Stats'
 import { Manage } from './screens/Manage'
 import { Login } from './screens/Login'
 import { useTasks } from './hooks/useTasks'
@@ -51,10 +50,6 @@ function AuthenticatedApp({ signOut }: { signOut: () => void }) {
               onUndo={undoComplete}
             />
           }
-        />
-        <Route
-          path="/stats"
-          element={<Stats tasks={tasks} completions={completions} />}
         />
         <Route
           path="/manage"
