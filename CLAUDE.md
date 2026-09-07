@@ -5,7 +5,6 @@
 - Backend: Supabase (auth + Postgres)
 - Deployed to GitHub Pages at https://mculnane.github.io/habit-tracker/
 - Repo: https://github.com/mculnane/habit-tracker (public)
-- Despite `netlify.toml` existing, the app is NOT deployed on Netlify
 
 ## Commands
 - `npm run dev` — local dev server
